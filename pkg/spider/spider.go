@@ -113,7 +113,6 @@ func (s *Spider) siteWorker(id int) {
 	workerId := fmt.Sprintf("Crawl-%d", id)
 	for site := range s.sites {
 		s.Logger.Println(workerId, site.URL)
-		time.Sleep(time.Second * 10)
 		s.results <- CrawledSite{Site: &site}
 	}
 
