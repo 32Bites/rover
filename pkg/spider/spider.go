@@ -32,7 +32,7 @@ type Spider struct {
 	OnCrawl CrawledSiteHandler
 	state   struct {
 		*sync.RWMutex
-		current_state SpiderState
+		current SpiderState
 	}
 	sites            chan Site
 	results          chan CrawledSite
@@ -60,10 +60,10 @@ func New(workerCount uint, onCrawl CrawledSiteHandler) (*Spider, error) {
 		resultsWaitGroup: &sync.WaitGroup{},
 		state: struct {
 			*sync.RWMutex
-			current_state SpiderState
+			current SpiderState
 		}{
-			RWMutex:       &sync.RWMutex{},
-			current_state: StateCrawling,
+			RWMutex: &sync.RWMutex{},
+			current: StateCrawling,
 		},
 	}
 
@@ -83,14 +83,14 @@ func (s *Spider) Stop() {
 	close(s.sites)
 	s.resultsWaitGroup.Wait()
 	close(s.results)
-	s.state.current_state = StateStopped
+	s.state.current = StateStopped
 }
 
 // Send allows you to externally send urls to the spider for handling
 func (s *Spider) Send(urls ...string) (err error) {
 	for _, url := range urls {
 		s.state.Lock()
-		if s.state.current_state != StateCrawling {
+		if s.state.current != StateCrawling {
 			s.state.Unlock()
 			err = errors.New("cannot send urls to stopped spider")
 			return
